@@ -1,7 +1,7 @@
 ---
 
 - name: Check for Golang installation
-  shell: command -v go >/dev/null 2>&1
+  shell: runuser -l 'ec2-user' -c "command -v go 2>/dev/null"
   register: golang_install
   ignore_errors: yes
 
@@ -11,6 +11,9 @@
       - golang_install.rc == 0
     fail_msg: "Golang installation not found, unable to proceed"
     success_msg: "Golang installation found"
+
+- set_fact:
+    golang_bin: "{{ golang_install.stdout }}"
 
 - name: Assert that system user accounts have been specified
   assert:
@@ -28,7 +31,7 @@
 
 - name: Install Docker ECR credential helper
   command:
-    go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
+    "{{ golang_bin }} get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login"
   args:
     creates: /root/go/bin/docker-credential-ecr-login
 
