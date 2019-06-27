@@ -9,7 +9,7 @@
     regexp: "^export {{ item.key|upper }}"
     line: "export {{ item.key|upper }}={{ item.value }}"
     state: present
-  with_dict: docker_ecr_environment
+  with_dict: "{{ docker_ecr_environment }}"
 
 - name: Create Docker configuration directory
   become_user: "{{ user }}"
