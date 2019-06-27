@@ -1,46 +1,47 @@
 ---
 
-- name: Install Golang
-  yum:
-    name: golang-1.11.5-1.el7
-    state: present
+- name: Check for Golang installation
+  shell: command -v go >/dev/null 2>&1
+  register: golang_install
+  ignore_errors: yes
 
-- name: Add go path for users
-  template:
-    src: "{{ item }}.j2"
-    dest: "/etc/profile.d/{{ item }}"
-    mode: 0555
-  with_items:
-    - go-path.sh
+- name: Assert that Golang is installed
+  assert:
+    that:
+      - golang_install.rc == 0
+    fail_msg: "Golang installation not found, unable to proceed"
+    success_msg: "Golang installation found"
 
-- name: Configure Docker users
-  include_tasks: configure-docker-user.yml
-  with_items: "{{ docker_ecr_user }}"
+- name: Assert that system user accounts have been specified
+  assert:
+    that:
+      - docker_ecr_users is defined and docker_ecr_users|length > 0
+    fail_msg: "No user accounts have been specified for this role"
+    success_msg: "Found user accounts"
 
-- name: go get docker-ecr-credential-login repo
+- name: Assert that Docker ECR environment config is present
+  assert:
+    that:
+      - docker_ecr_environment is defined
+    fail_msg: "No configuration found for this role"
+    success_msg: "Found configuration"
+
+- name: Install Docker ECR credential helper
   command:
     go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
   args:
-    creates: "{{ ecr_credential_binary }}"
+    creates: /root/go/bin/docker-credential-ecr-login
 
-- name: Copy docker-credential-ecr-login
-  command: cp /root/go/bin/docker-credential-ecr-login /bin
-
-- name: Creating /home/{{ docker_ecr_user }}/.docker directory
-  become_user: "{{ docker_ecr_user }}"
-  become: yes
+- name: Create symbolic link for Docker ECR credential helper
   file:
-    mode: 0755
-    path: "/home/{{ docker_ecr_user }}/.docker"
-    state: directory
+    src: /root/go/bin/docker-credential-ecr-login
+    dest: "{{ ecr_credential_binary }}"
+    owner: root
+    group: root
+    state: link
 
-- name: Template Docker authentication configuration
-  become_user: "{{ docker_ecr_user }}"
-  become: yes
-  template:
-    src: "{{ item }}.j2"
-    dest: "/home/{{ docker_ecr_user }}/.docker/{{ item }}"
-    mode: 0755
-  with_items:
-    - config.json
-
+- name: Configure user account(s) for Docker ECR authentication
+  include_tasks: user.yml
+  loop: "{{ docker_ecr_users }}"
+  loop_control:
+    loop_var: user
