@@ -1,0 +1,4 @@
+---
+
+ecr_credential_binary: /bin/docker-credential-ecr-login
+

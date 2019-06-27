@@ -1,0 +1,46 @@
+---
+
+- name: Install Golang
+  yum:
+    name: golang-1.11.5-1.el7
+    state: present
+
+- name: Add go path for users
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/profile.d/{{ item }}"
+    mode: 0555
+  with_items:
+    - go-path.sh
+
+- name: Configure Docker users
+  include_tasks: configure-docker-user.yml
+  with_items: "{{ docker_ecr_user }}"
+
+- name: go get docker-ecr-credential-login repo
+  command:
+    go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
+  args:
+    creates: "{{ ecr_credential_binary }}"
+
+- name: Copy docker-credential-ecr-login
+  command: cp /root/go/bin/docker-credential-ecr-login /bin
+
+- name: Creating /home/{{ docker_ecr_user }}/.docker directory
+  become_user: "{{ docker_ecr_user }}"
+  become: yes
+  file:
+    mode: 0755
+    path: "/home/{{ docker_ecr_user }}/.docker"
+    state: directory
+
+- name: Template Docker authentication configuration
+  become_user: "{{ docker_ecr_user }}"
+  become: yes
+  template:
+    src: "{{ item }}.j2"
+    dest: "/home/{{ docker_ecr_user }}/.docker/{{ item }}"
+    mode: 0755
+  with_items:
+    - config.json
+

@@ -1,0 +1,15 @@
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+
+export AWS_DEFAULT_REGION={{ ecr_environment.aws_default_region }}
+export AWS_ACCESS_KEY_ID={{ ecr_environment.aws_access_key_id }}
+export AWS_SECRET_ACCESS_KEY={{ ecr_environment.aws_secret_access_key }}
+
