@@ -7,6 +7,7 @@ Requirements
 ------------
 
 - [Golang](https://golang.org/) 1.11+
+- [Docker](https://www.docker.com/)
 
 Role Variables
 --------------
