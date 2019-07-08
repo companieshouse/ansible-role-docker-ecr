@@ -16,8 +16,8 @@ The following variables should be defined in projects that use this role:
 
 | Variable              | Default | Description                                                            |
 |-----------------------|---------|------------------------------------------------------------------------|
-| `docker_ecr_registry` | *None*  | A list of usernames that will be configured for Docker ECR integration |
-| `docker_ecr_users`    | *None*  | The AWS ECR host (e.g. `1234567890.dkr.ecr.eu-west-1.amazonaws.com`)   |
+| `docker_ecr_registry` | *None*  | The AWS ECR host (e.g. `1234567890.dkr.ecr.eu-west-1.amazonaws.com`)   |
+| `docker_ecr_users`    | *None*  | A list of usernames that will be configured for Docker ECR integration |
 
 In addition, a `docker_ecr_environment` dictionary should be defined, comprising the following AWS access credentials:
 
