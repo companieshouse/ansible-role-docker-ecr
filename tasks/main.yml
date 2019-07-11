@@ -35,13 +35,14 @@
   args:
     creates: /root/go/bin/docker-credential-ecr-login
 
-- name: Create symbolic link for Docker ECR credential helper
-  file:
+- name: Install system-wide Docker ECR credential helper
+  copy:
     src: /root/go/bin/docker-credential-ecr-login
     dest: "{{ ecr_credential_binary }}"
     owner: root
     group: root
-    state: link
+    mode: '0755'
+    remote_src: yes
 
 - name: Configure user account(s) for Docker ECR authentication
   include_tasks: user.yml
