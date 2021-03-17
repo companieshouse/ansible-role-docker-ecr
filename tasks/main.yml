@@ -1,7 +1,7 @@
 ---
 
 - name: Check for Golang installation
-  shell: runuser -l '{{ ansible_ssh_user }}' -c "command -v go 2>/dev/null"
+  shell: runuser -l '{{ ansible_user }}' -c "command -v go 2>/dev/null"
   register: golang_install
   ignore_errors: yes
 
