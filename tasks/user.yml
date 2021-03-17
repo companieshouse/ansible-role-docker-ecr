@@ -3,15 +3,6 @@
 - debug:
     msg: "Configuring Docker ECR authentication for user: {{ user }}"
 
-- name: Set AWS Command Line Interface credentials
-  lineinfile:
-    dest: /home/{{ user }}/.bash_profile
-    regexp: "^export {{ item.key|upper }}"
-    line: "export {{ item.key|upper }}={{ item.value }}"
-    state: present
-  with_dict: "{{ docker_ecr_environment }}"
-  no_log: true
-
 - name: Create Docker configuration directory
   become_user: "{{ user }}"
   become: yes
@@ -29,4 +20,3 @@
     mode: 0755
   with_items:
     - config.json
-

@@ -1,9 +1,9 @@
 ---
 
 - name: Check for Golang installation
-  shell: runuser -l '{{ ansible_user }}' -c "command -v go 2>/dev/null"
+  shell: runuser -l '{{ ansible_ssh_user }}' -c "command -v go 2>/dev/null"
   register: golang_install
-  ignore_errors: no
+  ignore_errors: yes
 
 - name: Assert that Golang is installed
   assert:
@@ -21,13 +21,6 @@
       - docker_ecr_users is defined and docker_ecr_users|length > 0
     fail_msg: "No user accounts have been specified for this role"
     success_msg: "Found user accounts"
-
-- name: Assert that Docker ECR environment config is present
-  assert:
-    that:
-      - docker_ecr_environment is defined
-    fail_msg: "No configuration found for this role"
-    success_msg: "Found configuration"
 
 - name: Install Docker ECR credential helper
   command:
